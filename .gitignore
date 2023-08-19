@@ -1,0 +1,7 @@
+.docker/
+persons-datasests.zip
+.vscode/
+__pycache__/
+venv/
+env/
+

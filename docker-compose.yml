@@ -1,0 +1,53 @@
+version: "3.8"
+
+services:
+  cassandra-tbd1:
+    image: cassandra
+    container_name: cassandra-tbd1
+    restart: "on-failure"
+    ports:
+      - "9240:9042"
+    volumes:
+      - "./.docker/cassandra-tbd1:/var/lib/cassandra"
+      - "./.docker/data:/home/datasets"
+    networks:
+      - tbd-network
+
+  cassandra-tbd2:
+    image: cassandra
+    container_name: cassandra-tbd2
+    restart: "on-failure"
+    depends_on:
+      - cassandra-tbd1
+    ports:
+      - "9241:9042"
+    volumes:
+      - "./.docker/cassandra-tbd2:/var/lib/cassandra"
+    environment:
+      - CASSANDRA_SEEDS=cassandra-tbd1
+    networks:
+      - tbd-network
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    volumes:
+      - ./.docker/mongodb/data:/data/db
+      - "./.docker/data:/home/datasets"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: docker
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - "27017:27017"
+    networks:
+      - tbd-network
+
+networks:
+  tbd-network:
+    driver: bridge
+    name: tbd-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
